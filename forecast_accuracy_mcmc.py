@@ -18,15 +18,15 @@ global full_hosp_data
 def IS(alpha, predL, predU):
     """
     Calculates Interval Score. 
-    Helper function for WIS function below.
+    Helper function for WIS.
 
     Args:
-        alpha (_type_): _description_
-        predL (_type_): _description_
-        predU (_type_): _description_
+        alpha (_type_): 1 - the difference between quantile marks.
+        predL (_type_): Predicted value for lower quantile.
+        predU (_type_): Predicted value for upper quantile.
 
     Returns:
-        _type_: _description_
+        float: Interval Score
     """    
     return lambda y: (predU - predL) + 2/alpha*(y < predL)*(predL - y) + 2/alpha*(y > predU)*(y-predU)
 
@@ -37,9 +37,9 @@ def WIS(y_obs, qtlMark, predQTL):
     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7880475/
 
     Args:
-        y_obs (List): _description_
-        qtlMark (List): The quartile marks used in forecast data file.
-        predQTL (List): _description_
+        y_obs (List[float]): Observed hospitalization data points.
+        qtlMark (List[float]): The quantile marks used in forecast data file.
+        predQTL (List[float]): Predicted values for each quantile.
 
     Returns:
         float: The WIS score.
@@ -58,15 +58,11 @@ def WIS(y_obs, qtlMark, predQTL):
         weight_list[i] = alpha_list[i]/2
         
     if is_well_defined:
-        #print(alpha_list)
-        #print(qtlMark)
-        #print(NcentralizedQT)
         
         output = 1.0/2 * np.abs(y_obs - predQTL[NcentralizedQT - 1])
         
         for i in range(NcentralizedQT - 1):
             output += weight_list[i] * IS(alpha_list[i], predQTL[i], predQTL[-1 - i])(y_obs)
-            #print(alpha_list[i], predQTL[i],predQTL[-1-i])
             
         return output/(NcentralizedQT - 1/2)
     
@@ -94,25 +90,27 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
         state_code (Int): The location code for the current state.
 
     Returns:
-        float: WIS score
+        dict: WIS scores and state info, to be converted later into a csv row.
     """    
-    state_code = str(state_code_input).zfill(2)
     quantiles = np.zeros((23,4))
+    reported_data = np.zeros(4)
     wis = np.zeros(4)
 
+    state_code = str(state_code_input).zfill(2)
     state_hosp_data = get_state_hosp_data(state_code)
-
     target_dates = get_target_dates_list(forecast_df)
 
     for n_week_ahead in range(4):
         target_date = target_dates[n_week_ahead]
 
-        # Sum the daily reported cases to find the weekly observation.
+        '''Sum the daily reported cases to find the weekly observation.'''
         observation = 0
         for i in range(7):
             target_date = str(date.fromisoformat(target_date) + timedelta(days=-i))
             daily_count = state_hosp_data.loc[state_hosp_data['date'] == target_date].values[0, 2]
             observation += daily_count
+
+        reported_data[n_week_ahead] = observation
 
         df_state = forecast_df[forecast_df['location'].to_numpy() == state_code]
         df_state_forecast = df_state[df_state['target_end_date'] == target_dates[n_week_ahead]]
@@ -121,18 +119,19 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
         
         try:
             wis[n_week_ahead] = np.round(
-                                np.sum(np.nan_to_num(
+                                np.sum(
+                                np.nan_to_num(
                                     WIS(observation, 
                                         quantiles, 
-                                        predictions))),
-                                        2)
+                                        predictions))), 2)
         except:
-            # if an error occurs, print the corresponding data
-            print("An error occured. Output will include a row of 0's.")
+            print("An error occured. Output may include a row of 0's.")
             print("Check the", location_to_state[state_code], "data file.\n")
 
-    # Send scores to csv
+    '''One_week_scores will be read to a csv'''
     one_week_scores = {'state_code': state_code, 'state_abbrev': location_to_state[state_code], 'date': target_dates[0], '1wk_WIS': wis[0],'2wk_WIS': wis[1], '3wk_WIS': wis[2], '4wk_WIS': wis[3]}
+
+    plotting_output = [quantiles, reported_data, wis]
 
     return one_week_scores
 
@@ -161,7 +160,7 @@ def one_state_all_scores(state_code):
         weekly_scores = one_state_one_week_WIS(all_forecast_data, state_code)
         state_df = pd.concat([state_df, pd.DataFrame([weekly_scores])], ignore_index=True)
     
-    # Export to CSV
+    '''Export to CSV'''
     state_csv_path = './mcmc_accuracy_results/' + location_to_state[state_code] + '.csv'
     state_df.to_csv(state_csv_path)
 
