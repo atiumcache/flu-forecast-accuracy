@@ -78,16 +78,3 @@ def plot_average_of_all_states(data_folder_path):
 
     return None
 
-
-def sanity_check_plot():
-    from matplotlib.pyplot import cm
-
-    colors = cm.plasma(np.linspace(0,1,12))
-
-
-    for i in range(11):
-
-        plt.fill_between(range(4), np_quantiles[i,:], np_quantiles[22-i,:], facecolor = colors[11-i], zorder = i)
-
-    plt.scatter(range(4), np_forecast, zorder=30)
-    plt.title('4 weeks ahead WIS score' + str(np_wis))
