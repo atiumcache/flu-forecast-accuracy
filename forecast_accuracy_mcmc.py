@@ -15,34 +15,33 @@ location_to_state = {}
 global full_hosp_data
 
 
-def IS(alpha, predL, predU):
+def IS(alpha: float, predL: float, predU: float) -> float:
     """
-    Calculates Interval Score. 
-    Helper function for WIS.
+    Calculates Interval Score. Helper function for WIS.
 
     Args:
-        alpha (_type_): 1 - the difference between quantile marks.
-        predL (_type_): Predicted value for lower quantile.
-        predU (_type_): Predicted value for upper quantile.
+        alpha: 1 - the difference between quantile marks.
+        predL: Predicted value for lower quantile.
+        predU: Predicted value for upper quantile.
 
     Returns:
-        float: Interval Score
+        Interval Score
     """    
     return lambda y: (predU - predL) + 2/alpha*(y < predL)*(predL - y) + 2/alpha*(y > predU)*(y-predU)
 
 
-def WIS(y_obs, qtlMark, predQTL):
+def WIS(y_obs: list[float], qtlMark: list[float], predQTL: list[float]) -> float:
     """
     Calculates a Weighted Interval Score based on this paper:
     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7880475/
 
     Args:
-        y_obs (List[float]): Observed hospitalization data points.
-        qtlMark (List[float]): The quantile marks used in forecast data file.
-        predQTL (List[float]): Predicted values for each quantile.
+        y_obs: Observed hospitalization data points.
+        qtlMark: The quantile marks used in forecast data file.
+        predQTL: Predicted values for each quantile.
 
     Returns:
-        float: The WIS score.
+        WIS score.
     """    
 
     is_well_defined = np.mod(len(qtlMark), 2) != 0
@@ -70,18 +69,19 @@ def WIS(y_obs, qtlMark, predQTL):
         print('Check the quantile marks: either no median defined, or not in symmetric central QTL form.')
 
 
-def get_target_dates_list(forecast_df):
+def get_target_dates_list(forecast_df: pd.DataFrame) -> list:
+    """Returns a list of target forecast dates."""
     return forecast_df['target_end_date'].unique()
 
 
-def get_state_hosp_data(state_code):
-    '''Filters a single state's hospitalization data from the full dataset.'''
+def get_state_hosp_data(state_code: int) -> pd.DataFrame:
+    """Filters a single state's hospitalization data from the full dataset."""
     global full_hosp_data
     state_abbrev = location_to_state[str(state_code).zfill(2)]
     return full_hosp_data[full_hosp_data['state'] == state_abbrev]
 
 
-def one_state_one_week_WIS(forecast_df, state_code_input):
+def one_state_one_week_WIS(forecast_df: pd.DataFrame, state_code_input: int) -> dict:
     """
     Generates one state's WIS scores for a single week's predictions.
 
@@ -90,7 +90,7 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
         state_code (Int): The location code for the current state.
 
     Returns:
-        dict: WIS scores and state info, to be converted later into a csv row.
+        WIS scores and state info, to be converted later into a csv row.
     """    
     quantiles = np.zeros((23,4))
     reported_data = np.zeros(4)
@@ -103,7 +103,7 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
     for n_week_ahead in range(4):
         target_date = target_dates[n_week_ahead]
 
-        '''Sum the daily reported cases to find the weekly observation.'''
+        """Sum the daily reported cases to find the weekly observation."""
         observation = 0
         for i in range(7):
             target_date = str(date.fromisoformat(target_date) + timedelta(days=-i))
@@ -128,7 +128,7 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
             print("An error occured. Output may include a row of 0's.")
             print("Check the", location_to_state[state_code], "data file.\n")
 
-    '''One_week_scores will be read to a csv'''
+    """One_week_scores will be read to a csv"""
     one_week_scores = {'state_code': state_code, 'state_abbrev': location_to_state[state_code], 'date': target_dates[0], '1wk_WIS': wis[0],'2wk_WIS': wis[1], '3wk_WIS': wis[2], '4wk_WIS': wis[3]}
 
     plotting_output = [quantiles, reported_data, wis]
@@ -136,14 +136,13 @@ def one_state_one_week_WIS(forecast_df, state_code_input):
     return one_week_scores
 
 
-def one_state_all_scores(state_code):
+def one_state_all_scores(state_code: int):
     """
     Generates all WIS scores for one state. 
     Uses the 'one_state_one_week' function to generate each week's score.
     Exports scores to a csv file.
 
-    Args:
-        state_code (int): The location code for the current state.
+    :param state_code: The location code for the current state.
     """    
     state_code = str(state_code).zfill(2)
     
@@ -160,32 +159,30 @@ def one_state_all_scores(state_code):
         weekly_scores = one_state_one_week_WIS(all_forecast_data, state_code)
         state_df = pd.concat([state_df, pd.DataFrame([weekly_scores])], ignore_index=True)
     
-    '''Export to CSV'''
+    """Export to CSV"""
     state_csv_path = './mcmc_accuracy_results/' + location_to_state[state_code] + '.csv'
     state_df.to_csv(state_csv_path)
 
-    return None
-
 
 def main():
-    '''Import locations'''
+    """Import locations"""
     locations = pd.read_csv('./locations.csv',skiprows=0) 
     locations = locations.drop([0]) #skip first row (national ID)
     print("Number of Locations:", len(locations))
 
-    '''Map locations codes to state abbreviations.'''
+    """Map locations codes to state abbreviations."""
     for index, row in locations.iterrows():
         location_number = row['location']
         abbreviation = row['abbreviation']
         location_to_state.update({location_number: abbreviation})
 
-    '''Extract hospitalization data'''
+    """Extract hospitalization data"""
     global full_hosp_data
     full_hosp_data = pd.read_csv('./COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_State_Timeseries__RAW_.csv') 
     full_hosp_data = full_hosp_data[['date','state','previous_day_admission_influenza_confirmed']].sort_values(['state','date'])
     full_hosp_data['date'] = pd.to_datetime(full_hosp_data['date'])
 
-    '''Generate WIS data for all states. Exports all scores to csv files.'''
+    """Generate WIS data for all states. Exports all scores to csv files."""
     for state in location_to_state.keys():
         one_state_all_scores(state)
 
