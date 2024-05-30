@@ -15,7 +15,7 @@ def plot_one_state(state_csv):
 
     palette = sns.color_palette("colorblind")  
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(10, 4), dpi=600)
     sns.lineplot(x='date', y='1wk_WIS', data=data, linewidth=2, label='1-Week WIS', color=palette[0], linestyle='-')
     sns.lineplot(x='date', y='2wk_WIS', data=data, linewidth=2, label='2-Week WIS', color=palette[1], linestyle='--')
     sns.lineplot(x='date', y='3wk_WIS', data=data, linewidth=2, label='3-Week WIS', color=palette[2], linestyle='-.')
@@ -63,7 +63,7 @@ def plot_average_of_all_states(data_folder_path):
     # Plot
     palette = sns.color_palette("colorblind")  
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(10, 4), dpi=600)
     sns.lineplot(x='date', y='1wk_WIS', data=average_data, label='Average 1-Week WIS', color=palette[0], linestyle='-', linewidth=2)
     sns.lineplot(x='date', y='2wk_WIS', data=average_data, label='Average 2-Week WIS', color=palette[1], linestyle='--', linewidth=2)
     sns.lineplot(x='date', y='3wk_WIS', data=average_data, label='Average 3-Week WIS', color=palette[2], linestyle='-.', linewidth=2)
