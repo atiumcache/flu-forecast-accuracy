@@ -6,6 +6,10 @@ from datetime import date, timedelta
 import matplotlib.pyplot as plt
 import pymmwr as pm
 import seaborn as sns
+import csv
+
+
+INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
 
 
 def IS(alpha: float, predL: float, predU: float):
@@ -58,7 +62,8 @@ def WIS(y_obs: float, qtlMark: list[float], predQTL: list[float]) -> float:
 
 def get_target_dates_list(forecast_df: pd.DataFrame) -> list:
     """Returns a list of target forecast dates."""
-    return forecast_df["target_end_date"].unique().tolist()
+    dates_list = forecast_df["target_end_date"].unique().tolist()
+    return dates_list
 
 
 def get_state_hosp_data(
@@ -195,7 +200,7 @@ def main():
     for state_code in location_to_state.keys():
         print("Running forecast accuracy on location code", state_code, end="\r")
         one_state_all_scores_to_csv(
-            state_code, "./LosAlamos_NAU-CModel_Flu/", full_hosp_data, location_to_state
+            state_code, INPUT_FOLDER, full_hosp_data, location_to_state
         )
 
 
