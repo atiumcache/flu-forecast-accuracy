@@ -5,7 +5,7 @@ from os.path import isfile, join
 from datetime import date, timedelta
 
 
-INPUT_FOLDER = "./pf-predictions/"
+INPUT_FOLDER = "./formatted-pf-predictions/"
 OUTPUT_FOLDER = "./pf-accuracy-results/"
 
 
