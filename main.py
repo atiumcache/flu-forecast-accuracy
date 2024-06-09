@@ -3,13 +3,10 @@ import pandas as pd
 from os import listdir
 from os.path import isfile, join
 from datetime import date, timedelta
-import matplotlib.pyplot as plt
-import pymmwr as pm
-import seaborn as sns
-import csv
 
 
-INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
+INPUT_FOLDER = "./pf-predictions/"
+OUTPUT_FOLDER = "./pf-accuracy-results/"
 
 
 def IS(alpha: float, predL: float, predU: float):
@@ -174,7 +171,7 @@ def one_state_all_scores_to_csv(
         )
 
     state_csv_path = join(
-        "./mcmc_accuracy_results/", f"{location_to_state[state_code]}.csv"
+       OUTPUT_FOLDER, f"{location_to_state[state_code]}.csv"
     )
     state_df.to_csv(state_csv_path, index=False)
 
