@@ -109,6 +109,9 @@ def one_state_one_week_WIS(
         )
         reported_data[n_week_ahead] = observation
 
+        print(forecast_df["location"][1])
+        print(state_code)
+        print(forecast_df["location"][1] == state_code)
         df_state_forecast = forecast_df[
             (forecast_df["location"] == state_code)
             & (forecast_df["target_end_date"] == target_date)
@@ -162,6 +165,7 @@ def one_state_all_scores_to_csv(
         all_forecast_data = all_forecast_data[
             all_forecast_data["output_type"] == "quantile"
         ]
+        all_forecast_data["location"] = all_forecast_data["location"].apply(lambda x: str(x).zfill(2))
 
         weekly_scores = one_state_one_week_WIS(
             all_forecast_data, state_code, full_hosp_data, location_to_state
