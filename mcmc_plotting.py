@@ -29,14 +29,14 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
     warm_palette = sns.color_palette("Oranges", 4)
     cool_palette = sns.color_palette("Blues", 4)
 
-    plt.figure(figsize=(10, 4), dpi=200)
+    plt.figure(figsize=(8.5, 4.5), dpi=200)
 
     # Plot MCMC WIS scores
     sns.lineplot(
         x="date",
         y="1wk_WIS",
         data=mcmc_data,
-        linewidth=2,
+        linewidth=1.5,
         label="MCMC 1-Week WIS",
         color=warm_palette[0],
         linestyle="-",
@@ -45,7 +45,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="2wk_WIS",
         data=mcmc_data,
-        linewidth=2,
+        linewidth=1.5,
         label="MCMC 2-Week WIS",
         color=warm_palette[1],
         linestyle="--",
@@ -54,7 +54,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="3wk_WIS",
         data=mcmc_data,
-        linewidth=2,
+        linewidth=1.5,
         label="MCMC 3-Week WIS",
         color=warm_palette[2],
         linestyle="-.",
@@ -63,7 +63,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="4wk_WIS",
         data=mcmc_data,
-        linewidth=2,
+        linewidth=1.5,
         label="MCMC 4-Week WIS",
         color=warm_palette[3],
         linestyle=":",
@@ -74,7 +74,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="1wk_WIS",
         data=pf_data,
-        linewidth=2,
+        linewidth=1.5,
         label="PF 1-Week WIS",
         color=cool_palette[0],
         linestyle="-",
@@ -83,7 +83,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="2wk_WIS",
         data=pf_data,
-        linewidth=2,
+        linewidth=1.5,
         label="PF 2-Week WIS",
         color=cool_palette[1],
         linestyle="--",
@@ -92,7 +92,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="3wk_WIS",
         data=pf_data,
-        linewidth=2,
+        linewidth=1.5,
         label="PF 3-Week WIS",
         color=cool_palette[2],
         linestyle="-.",
@@ -101,7 +101,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         x="date",
         y="4wk_WIS",
         data=pf_data,
-        linewidth=2,
+        linewidth=1.5,
         label="PF 4-Week WIS",
         color=cool_palette[3],
         linestyle=":",
@@ -139,7 +139,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         x="date",
         y="1wk_WIS",
         data=data,
-        linewidth=2,
+        linewidth=1.5,
         label="1-Week WIS",
         color=palette[0],
         linestyle="-",
@@ -148,7 +148,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         x="date",
         y="2wk_WIS",
         data=data,
-        linewidth=2,
+        linewidth=1.5,
         label="2-Week WIS",
         color=palette[1],
         linestyle="--",
@@ -157,7 +157,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         x="date",
         y="3wk_WIS",
         data=data,
-        linewidth=2,
+        linewidth=1.5,
         label="3-Week WIS",
         color=palette[2],
         linestyle="-.",
@@ -166,7 +166,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         x="date",
         y="4wk_WIS",
         data=data,
-        linewidth=2,
+        linewidth=1.5,
         label="4-Week WIS",
         color=palette[4],
         linestyle=":",
@@ -229,7 +229,7 @@ def plot_average_of_all_states(data_folder_path: str):
         label="Average 1-Week WIS",
         color=palette[0],
         linestyle="-",
-        linewidth=2,
+        linewidth=1.5,
     )
     sns.lineplot(
         x="date",
@@ -238,7 +238,7 @@ def plot_average_of_all_states(data_folder_path: str):
         label="Average 2-Week WIS",
         color=palette[1],
         linestyle="--",
-        linewidth=2,
+        linewidth=1.5,
     )
     sns.lineplot(
         x="date",
@@ -247,7 +247,7 @@ def plot_average_of_all_states(data_folder_path: str):
         label="Average 3-Week WIS",
         color=palette[2],
         linestyle="-.",
-        linewidth=2,
+        linewidth=1.5,
     )
     sns.lineplot(
         x="date",
@@ -256,7 +256,7 @@ def plot_average_of_all_states(data_folder_path: str):
         label="Average 4-Week WIS",
         color=palette[4],
         linestyle=":",
-        linewidth=2,
+        linewidth=1.5,
     )
 
     plt.title("Average WIS Scores Over Time :: All States :: MCMC Forecast")
