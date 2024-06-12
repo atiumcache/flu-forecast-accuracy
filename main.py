@@ -5,8 +5,11 @@ from os.path import isfile, join
 from datetime import date, timedelta
 
 
-INPUT_FOLDER = "./formatted-pf-predictions/"
-OUTPUT_FOLDER = "./pf-accuracy-results/"
+# INPUT_FOLDER = "./formatted-pf-predictions/"
+# OUTPUT_FOLDER = "./pf-accuracy-results/"
+
+INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
+OUTPUT_FOLDER = "./mcmc_accuracy_results/"
 
 
 def IS(alpha: float, predL: float, predU: float):
@@ -59,8 +62,10 @@ def WIS(y_obs: float, qtlMark: list[float], predQTL: list[float]) -> float:
 
 def get_target_dates_list(forecast_df: pd.DataFrame) -> list:
     """Returns a list of target forecast dates."""
-    dates_list = forecast_df["target_end_date"].unique().tolist()
-    return dates_list
+    filtered_forecast_df = forecast_df[forecast_df['horizon'] != -1]
+    dates_list = filtered_forecast_df["target_end_date"].unique().tolist()
+    sorted_dates = sorted(dates_list)
+    return sorted_dates
 
 
 def get_state_hosp_data(
@@ -91,6 +96,8 @@ def one_state_one_week_WIS(
     """
     state_hosp_data = get_state_hosp_data(full_hosp_data, location_to_state, state_code)
     target_dates = get_target_dates_list(forecast_df)
+    predict_from_date = str(date.fromisoformat(
+                            target_dates[0]) - timedelta(days=7))
 
     quantiles = np.zeros((23, 4))
     reported_data = np.zeros(4)
@@ -109,9 +116,6 @@ def one_state_one_week_WIS(
         )
         reported_data[n_week_ahead] = observation
 
-        print(forecast_df["location"][1])
-        print(state_code)
-        print(forecast_df["location"][1] == state_code)
         df_state_forecast = forecast_df[
             (forecast_df["location"] == state_code)
             & (forecast_df["target_end_date"] == target_date)
@@ -130,7 +134,7 @@ def one_state_one_week_WIS(
     return {
         "state_code": state_code,
         "state_abbrev": location_to_state[state_code],
-        "date": target_dates[0],
+        "date": predict_from_date,
         "1wk_WIS": wis_scores[0],
         "2wk_WIS": wis_scores[1],
         "3wk_WIS": wis_scores[2],
@@ -143,7 +147,7 @@ def one_state_all_scores_to_csv(
     forecast_path: str,
     full_hosp_data: pd.DataFrame,
     location_to_state: dict,
-):
+) -> None:
     """
     Generates all WIS scores for one state.
     Exports scores to a csv file.
@@ -199,10 +203,12 @@ def main():
 
     # Run forecast accuracy on all locations.
     for state_code in location_to_state.keys():
-        print("Running forecast accuracy on location code", state_code, end="\r")
+        print("Running forecast accuracy on location code", state_code,
+              end="\r")
         one_state_all_scores_to_csv(
             state_code, INPUT_FOLDER, full_hosp_data, location_to_state
         )
+    print(f"Completed all locations.")
 
 
 if __name__ == "__main__":
