@@ -6,6 +6,117 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.backends.backend_pdf import PdfPages
+
+
+def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = False) -> None:
+    """
+    Compares WIS scores from MCMC and Particle Filter methods over time for a state.
+
+    Args:
+        mcmc_csv_path: relative path to csv file containing MCMC WIS scores.
+        pf_csv_path: relative path to csv file containing Particle Filter WIS scores.
+        save: When `True`, saves the plot to `./plots/`.
+    """
+    mcmc_data = pd.read_csv(mcmc_csv_path)
+    pf_data = pd.read_csv(pf_csv_path)
+
+    mcmc_data["date"] = pd.to_datetime(mcmc_data["date"])
+    pf_data["date"] = pd.to_datetime(pf_data["date"])
+
+    state_name = mcmc_data["state_abbrev"][1]
+
+    warm_palette = sns.color_palette("Oranges", 4)
+    cool_palette = sns.color_palette("Blues", 4)
+
+    plt.figure(figsize=(10, 4), dpi=200)
+
+    # Plot MCMC WIS scores
+    sns.lineplot(
+        x="date",
+        y="1wk_WIS",
+        data=mcmc_data,
+        linewidth=2,
+        label="MCMC 1-Week WIS",
+        color=warm_palette[0],
+        linestyle="-",
+    )
+    sns.lineplot(
+        x="date",
+        y="2wk_WIS",
+        data=mcmc_data,
+        linewidth=2,
+        label="MCMC 2-Week WIS",
+        color=warm_palette[1],
+        linestyle="--",
+    )
+    sns.lineplot(
+        x="date",
+        y="3wk_WIS",
+        data=mcmc_data,
+        linewidth=2,
+        label="MCMC 3-Week WIS",
+        color=warm_palette[2],
+        linestyle="-.",
+    )
+    sns.lineplot(
+        x="date",
+        y="4wk_WIS",
+        data=mcmc_data,
+        linewidth=2,
+        label="MCMC 4-Week WIS",
+        color=warm_palette[3],
+        linestyle=":",
+    )
+    
+    # Plot Particle Filter WIS scores
+    sns.lineplot(
+        x="date",
+        y="1wk_WIS",
+        data=pf_data,
+        linewidth=2,
+        label="PF 1-Week WIS",
+        color=cool_palette[0],
+        linestyle="-",
+    )
+    sns.lineplot(
+        x="date",
+        y="2wk_WIS",
+        data=pf_data,
+        linewidth=2,
+        label="PF 2-Week WIS",
+        color=cool_palette[1],
+        linestyle="--",
+    )
+    sns.lineplot(
+        x="date",
+        y="3wk_WIS",
+        data=pf_data,
+        linewidth=2,
+        label="PF 3-Week WIS",
+        color=cool_palette[2],
+        linestyle="-.",
+    )
+    sns.lineplot(
+        x="date",
+        y="4wk_WIS",
+        data=pf_data,
+        linewidth=2,
+        label="PF 4-Week WIS",
+        color=cool_palette[3],
+        linestyle=":",
+    )
+
+    plt.title(f"WIS Scores Over Time :: MCMC vs PF Forecast :: {state_name}")
+    plt.xlabel("Date")
+    plt.ylabel("WIS")
+    plt.legend(title="Forecast Horizon")
+    plt.grid(True)
+
+    if save:
+        plt.savefig(f"./plots/{state_name}_WIS_comparison.png")
+
+    plt.show()
 
 
 def plot_one_state(state_csv: str, save: bool = False) -> None:
