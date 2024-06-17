@@ -5,11 +5,40 @@ from os.path import isfile, join
 from datetime import date, timedelta
 
 
-# INPUT_FOLDER = "./formatted-pf-predictions/"
-# OUTPUT_FOLDER = "./pf-accuracy-results/"
+INPUT_FOLDER = "./formatted-pf-predictions/"
+OUTPUT_FOLDER = "./pf-accuracy-results/"
 
-INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
-OUTPUT_FOLDER = "./mcmc_accuracy_results/"
+# INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
+# OUTPUT_FOLDER = "./mcmc_accuracy_results/"
+
+
+def main() -> None:
+    """Main function to execute the script on all locations."""
+
+    # Read location data.
+    locations = pd.read_csv("./locations.csv").iloc[1:]  # skip first row (national ID)
+
+    # Map location codes to state abbreviations.
+    location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
+
+    # Process reported hospitalization data.
+    full_hosp_data = pd.read_csv(
+        "./COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_State_Timeseries__RAW_.csv"
+    )
+    full_hosp_data = full_hosp_data[
+        ["date", "state", "previous_day_admission_influenza_confirmed"]
+    ].sort_values(["state", "date"])
+    full_hosp_data["date"] = pd.to_datetime(full_hosp_data["date"])
+
+    # Run forecast accuracy on all locations.
+    for state_code in location_to_state.keys():
+        print("Running forecast accuracy on location code", state_code)
+        one_state_all_scores_to_csv(
+            state_code, INPUT_FOLDER, full_hosp_data, location_to_state
+        )
+
+    print(f"Completed all locations.")
+    return
 
 
 def IS(alpha: float, predL: float, predU: float):
@@ -106,15 +135,8 @@ def one_state_one_week_WIS(
     for n_week_ahead in range(4):
         target_date = target_dates[n_week_ahead]
 
-        observation = sum(
-            state_hosp_data.loc[
-                state_hosp_data["date"]
-                == str(date.fromisoformat(target_date) - timedelta(days=i)),
-                "previous_day_admission_influenza_confirmed",
-            ].values[0]
-            for i in range(7)
-        )
-        reported_data[n_week_ahead] = observation
+        week_observation = compute_week_observation(state_hosp_data, target_date)
+        reported_data[n_week_ahead] = compute_week_observation(state_hosp_data, target_date)
 
         df_state_forecast = forecast_df[
             (forecast_df["location"] == state_code)
@@ -125,7 +147,7 @@ def one_state_one_week_WIS(
 
         try:
             wis_scores[n_week_ahead] = round(
-                np.sum(np.nan_to_num(WIS(observation, quantiles, predictions))), 2
+                np.sum(np.nan_to_num(WIS(week_observation, quantiles, predictions))), 2
             )
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -140,6 +162,37 @@ def one_state_one_week_WIS(
         "3wk_WIS": wis_scores[2],
         "4wk_WIS": wis_scores[3],
     }
+
+
+def compute_week_observation(state_hosp_data, target_date):
+    """
+    Computes the hospitalization counts for a given week.
+
+    This is necessary because the hospitalization data is provided daily,
+    but we are making weekly predictions.
+    """
+    observation = 0
+    state_hosp_data.loc[:, 'date'] = pd.to_datetime(state_hosp_data['date'])
+    target_date_obj = pd.to_datetime(target_date)
+
+    for i in range(7):
+        current_date = target_date_obj - timedelta(days=i)
+
+        # Check if the current date is in the DataFrame
+        filtered_data = state_hosp_data.loc[state_hosp_data["date"] == current_date, "previous_day_admission_influenza_confirmed"]
+
+        if filtered_data.empty:
+            print(f"No data found for date: {current_date}")
+            continue
+
+        try:
+            observation += filtered_data.values[0]
+        except IndexError as e:
+            print(f"An error occurred: {e}")
+            print(f"Data for date {current_date} seems to be missing.")
+            return None
+
+    return observation
 
 
 def one_state_all_scores_to_csv(
@@ -182,33 +235,6 @@ def one_state_all_scores_to_csv(
        OUTPUT_FOLDER, f"{location_to_state[state_code]}.csv"
     )
     state_df.to_csv(state_csv_path, index=False)
-
-
-def main():
-    """Main function to execute the script."""
-    locations = pd.read_csv("./locations.csv").iloc[1:]  # skip first row (national ID)
-    print(f"Number of Locations: {len(locations)}")
-
-    # Map location codes to state abbreviations.
-    location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
-
-    # Process reported hospitalization data.
-    full_hosp_data = pd.read_csv(
-        "./COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_State_Timeseries__RAW_.csv"
-    )
-    full_hosp_data = full_hosp_data[
-        ["date", "state", "previous_day_admission_influenza_confirmed"]
-    ].sort_values(["state", "date"])
-    full_hosp_data["date"] = pd.to_datetime(full_hosp_data["date"])
-
-    # Run forecast accuracy on all locations.
-    for state_code in location_to_state.keys():
-        print("Running forecast accuracy on location code", state_code,
-              end="\r")
-        one_state_all_scores_to_csv(
-            state_code, INPUT_FOLDER, full_hosp_data, location_to_state
-        )
-    print(f"Completed all locations.")
 
 
 if __name__ == "__main__":

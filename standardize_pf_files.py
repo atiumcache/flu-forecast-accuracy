@@ -1,3 +1,8 @@
+"""
+This script standardizes the PF prediction output to
+match the format of the MCMC predictions.
+"""
+
 import pandas as pd
 import os
 
