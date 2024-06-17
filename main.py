@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 
 INPUT_FOLDER = "./formatted-pf-predictions/"
-OUTPUT_FOLDER = "./pf-accuracy-results/"
+OUTPUT_FOLDER = "./pf_accuracy_results/"
 
 # INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
 # OUTPUT_FOLDER = "./mcmc_accuracy_results/"
