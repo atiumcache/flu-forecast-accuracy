@@ -16,7 +16,7 @@ def main() -> None:
     """Main function to execute the script on all locations."""
 
     # Read location data.
-    locations = pd.read_csv("./locations.csv").iloc[1:]  # skip first row (national ID)
+    locations = pd.read_csv("datasets/locations.csv").iloc[1:]  # skip first row (national ID)
 
     # Map location codes to state abbreviations.
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))

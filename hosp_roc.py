@@ -1,3 +1,10 @@
+"""
+Example command line usage:
+    python3 hosp_roc.py -l '01' --mcmc
+
+The example runs the script on location 01, using the data from the MCMC folder.
+"""
+
 from typing import Dict
 
 import pandas as pd
@@ -20,9 +27,8 @@ def main():
                                                  prediction_method,
                                                  location_code,
                                                  location_to_state)
-    df_with_z_score = add_z_score_col(hosp_roc_and_wis_df)
-    print(df_with_z_score)
-    hosp_roc_and_wis_df.to_csv('./hosp_roc/' + location_code + '.csv')
+    df_with_stencil = add_five_point_stencil_derivative(hosp_roc_and_wis_df, 'prev_week_hosp', '1st_deriv_stencil')
+    df_with_stencil.to_csv('./hosp_roc/' + location_code + '.csv')
 
 
 def add_z_score_col(df):
@@ -72,6 +78,10 @@ def join_hosp_data_and_wis(hosp_rate_of_change_data: pd.DataFrame,
 
 
 def convert_hosp_to_weekly(daily_state_data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Our hospital data comes in as daily new flu cases.
+    This function finds
+    """
     print(daily_state_data.head())
     dates_df = pd.read_csv('./datasets/target_dates.csv')
     target_dates = [pd.to_datetime(date) for date in dates_df['date']]
@@ -106,6 +116,43 @@ def get_rates_of_change(state_data: pd.DataFrame) -> pd.DataFrame:
     state_data['2_week_roc'] = state_data[
         'prev_week_hosp'].pct_change(periods=2)
     return state_data
+
+
+def add_five_point_stencil_derivative(df: pd.DataFrame, column_name: str, new_column_name: str) -> pd.DataFrame:
+    """
+    Adds a column to the DataFrame with the five-point stencil derivative of the specified column.
+
+    Args:
+        df: The input DataFrame.
+        column_name: The name of the column for which to calculate the derivative.
+        new_column_name: The name of the new column to store the derivative.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the new column added.
+    """
+    def five_point_stencil(values: np.ndarray) -> np.ndarray:
+        n = len(values)
+        derivatives = np.zeros(n)
+
+        # Use five-point stencil for interior points
+        derivatives[2:n - 2] = (-values[4:] + 8 * values[3:n - 1] - 8 * values[1:n - 3] + values[:n - 4]) / 12
+
+        # Forward difference for the first point
+        derivatives[0] = values[1] - values[0]
+
+        # Central difference for the second point
+        derivatives[1] = (values[2] - values[0]) / 2
+
+        # Central difference for the second-to-last point
+        derivatives[n - 2] = (values[n - 1] - values[n - 3]) / 2
+
+        # Backward difference for the last point
+        derivatives[n - 1] = values[n - 1] - values[n - 2]
+
+        return derivatives
+
+    df[new_column_name] = five_point_stencil(df[column_name].values)
+    return df
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -147,7 +194,7 @@ def gather_all_hosp_data() -> pd.DataFrame:
 
 def map_loc_codes() -> Dict:
     # Read location data.
-    locations = pd.read_csv("./locations.csv").iloc[1:]  # skip first row (national ID)
+    locations = pd.read_csv("datasets/locations.csv").iloc[1:]  # skip first row (national ID)
     # Map location codes to state abbreviations.
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
 

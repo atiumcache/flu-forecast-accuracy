@@ -17,7 +17,7 @@ def run_script(loc_code):
 
 def map_loc_codes() -> Dict:
     # Read location data.
-    locations = pd.read_csv("./locations.csv").iloc[1:]  # skip first row (national ID)
+    locations = pd.read_csv("datasets/locations.csv").iloc[1:]  # skip first row (national ID)
     # Map location codes to state abbreviations.
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
 
