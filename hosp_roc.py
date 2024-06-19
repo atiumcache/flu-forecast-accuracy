@@ -100,35 +100,6 @@ def convert_hosp_to_weekly(daily_state_data: pd.DataFrame) -> pd.DataFrame:
     return weekly_df
 
 
-"""
-def convert_hosp_to_weekly(daily_state_data):
-    daily_state_data.loc[:, 'date'] = pd.to_datetime(daily_state_data['date'])
-    daily_state_data.set_index('date', inplace=True)
-
-    # Set a date to build the weeks around.
-    # So the dates correspond with prediction dates.
-    anchor_date = pd.Timestamp('2023-10-14')
-
-    # Align the date index to the custom anchor date
-    shift_days = (daily_state_data.index[0] - anchor_date).days % 7
-    daily_state_data_aligned = daily_state_data.copy()
-    daily_state_data_aligned.index = daily_state_data_aligned.index - DateOffset(days=shift_days)
-
-    # Resample the data by week starting from the custom anchor date
-    weekly_data = daily_state_data_aligned.resample('W-WED').sum()
-
-    # Shift back to the original dates
-    weekly_data.index = weekly_data.index + DateOffset(days=shift_days)
-
-    # Rename the state entries to the original value
-    weekly_data['state'] = daily_state_data['state'].iloc[0]
-
-    weekly_data = weekly_data.rename(columns={
-        'previous_day_admission_influenza_confirmed': 'prev_week_hosp'})
-
-    return weekly_data
-"""
-
 def get_rates_of_change(state_data: pd.DataFrame) -> pd.DataFrame:
     state_data['1_week_roc'] = state_data[
         'prev_week_hosp'].pct_change(periods=1)
