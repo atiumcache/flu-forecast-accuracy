@@ -27,7 +27,9 @@ def main():
                                                  prediction_method,
                                                  location_code,
                                                  location_to_state)
-    df_with_stencil = add_five_point_stencil_derivative(hosp_roc_and_wis_df, 'prev_week_hosp', '1st_deriv_stencil')
+    df_z_score = add_z_score_col(hosp_roc_and_wis_df)
+    df_with_stencil = add_five_point_stencil_derivative(df_z_score,
+                                                        'prev_week_hosp', '1st_deriv_stencil')
     df_with_stencil.to_csv('./hosp_roc/' + location_code + '.csv')
 
 

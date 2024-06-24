@@ -8,6 +8,10 @@ def main():
     location_to_state_map = map_loc_codes()
 
     with mp.Pool(mp.cpu_count()) as pool:
+        """
+        Runs the hosp_roc.py script on each location.
+        Results are output to csv files in `./hosp_roc`.
+        """
         pool.map(run_script, location_to_state_map.keys())
 
 
@@ -20,7 +24,6 @@ def map_loc_codes() -> Dict:
     locations = pd.read_csv("datasets/locations.csv").iloc[1:]  # skip first row (national ID)
     # Map location codes to state abbreviations.
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
-
     return location_to_state
 
 
