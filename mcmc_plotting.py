@@ -9,7 +9,9 @@ import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = False) -> None:
+def plot_state_comparison(
+    mcmc_csv_path: str, pf_csv_path: str, save: bool = False
+) -> None:
     """
     Compares WIS scores from MCMC and Particle Filter methods over time for a state.
 
@@ -68,7 +70,7 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
         color=warm_palette[3],
         linestyle=":",
     )
-    
+
     # Plot Particle Filter WIS scores
     sns.lineplot(
         x="date",
@@ -121,12 +123,12 @@ def plot_state_comparison(mcmc_csv_path: str, pf_csv_path: str, save: bool = Fal
 
 def plot_one_state(state_csv: str, save: bool = False) -> None:
     """
-    Displays a plot of one state's WIS scores over time. 
+    Displays a plot of one state's WIS scores over time.
 
     Args:
         state_csv: relative path to csv file containing WIS scores.
         save: When `True`, saves the plot to `./plots/`.
-    """    
+    """
     data = pd.read_csv(state_csv)
 
     data["date"] = pd.to_datetime(data["date"])
@@ -180,7 +182,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
     plt.show()
 
     if save == True:
-        filepath = './plots/' + data["state_abbrev"][1] + '_WIS_scores_plot.csv'
+        filepath = "./plots/" + data["state_abbrev"][1] + "_WIS_scores_plot.csv"
         plt.savefig(filepath)
 
 
@@ -190,7 +192,7 @@ def plot_average_of_all_states(data_folder_path: str):
 
     Args:
         data_folder_path: relative path to folder containing all accuracy results.
-    """    
+    """
     data_list = []
     wis_columns = ["1wk_WIS", "2wk_WIS", "3wk_WIS", "4wk_WIS"]
 

@@ -6,8 +6,8 @@ match the format of the MCMC predictions.
 import pandas as pd
 import os
 
-input_folder_path = './pf_1000_data/datasets/hosp_forecasts'
-output_folder_path = './formatted-pf-predictions/'
+input_folder_path = "./pf_1000_data/datasets/hosp_forecasts"
+output_folder_path = "./formatted-pf-predictions/"
 
 
 def fix_horizon_values(horizon_series):
@@ -32,15 +32,16 @@ def standardize_file(file_path: str, output_folder: str) -> None:
     # Load the CSV file
     df = pd.read_csv(file_path)
 
-    df = df.drop_duplicates(subset=['location', 'target_end_date',
-                                    'output_type_id'], keep='first')
+    df = df.drop_duplicates(
+        subset=["location", "target_end_date", "output_type_id"], keep="first"
+    )
 
     # Convert specified columns to strings without additional quotes
-    df['output_type_id'] = df['output_type_id'].astype(str)
-    df['location'] = df['location'].apply(lambda x: str(x).zfill(2))
-    df['output_type'] = df['output_type'].astype(str)
+    df["output_type_id"] = df["output_type_id"].astype(str)
+    df["location"] = df["location"].apply(lambda x: str(x).zfill(2))
+    df["output_type"] = df["output_type"].astype(str)
 
-    df['horizon'] = fix_horizon_values(df['horizon'])
+    df["horizon"] = fix_horizon_values(df["horizon"])
 
     # Determine the output file path
     new_file_name = os.path.basename(file_path)
@@ -57,6 +58,6 @@ os.makedirs(output_folder_path, exist_ok=True)
 
 # Process each file in the input folder
 for file_name in os.listdir(input_folder_path):
-    if file_name.endswith('.csv'):
+    if file_name.endswith(".csv"):
         input_file_path = os.path.join(input_folder_path, file_name)
         standardize_file(input_file_path, output_folder_path)

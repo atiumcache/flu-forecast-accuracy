@@ -16,7 +16,9 @@ def main() -> None:
     """Main function to execute the script on all locations."""
 
     # Read location data.
-    locations = pd.read_csv("datasets/locations.csv").iloc[1:]  # skip first row (national ID)
+    locations = pd.read_csv("datasets/locations.csv").iloc[
+        1:
+    ]  # skip first row (national ID)
 
     # Map location codes to state abbreviations.
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
@@ -91,7 +93,7 @@ def WIS(y_obs: float, qtlMark: list[float], predQTL: list[float]) -> float:
 
 def get_target_dates_list(forecast_df: pd.DataFrame) -> list:
     """Returns a list of target forecast dates."""
-    filtered_forecast_df = forecast_df[forecast_df['horizon'] != -1]
+    filtered_forecast_df = forecast_df[forecast_df["horizon"] != -1]
     dates_list = filtered_forecast_df["target_end_date"].unique().tolist()
     sorted_dates = sorted(dates_list)
     return sorted_dates
@@ -125,8 +127,7 @@ def one_state_one_week_WIS(
     """
     state_hosp_data = get_state_hosp_data(full_hosp_data, location_to_state, state_code)
     target_dates = get_target_dates_list(forecast_df)
-    predict_from_date = str(date.fromisoformat(
-                            target_dates[0]) - timedelta(days=7))
+    predict_from_date = str(date.fromisoformat(target_dates[0]) - timedelta(days=7))
 
     quantiles = np.zeros((23, 4))
     reported_data = np.zeros(4)
@@ -136,7 +137,9 @@ def one_state_one_week_WIS(
         target_date = target_dates[n_week_ahead]
 
         week_observation = compute_week_observation(state_hosp_data, target_date)
-        reported_data[n_week_ahead] = compute_week_observation(state_hosp_data, target_date)
+        reported_data[n_week_ahead] = compute_week_observation(
+            state_hosp_data, target_date
+        )
 
         df_state_forecast = forecast_df[
             (forecast_df["location"] == state_code)
@@ -172,14 +175,17 @@ def compute_week_observation(state_hosp_data, target_date):
     but we are making weekly predictions.
     """
     observation = 0
-    state_hosp_data.loc[:, 'date'] = pd.to_datetime(state_hosp_data['date'])
+    state_hosp_data.loc[:, "date"] = pd.to_datetime(state_hosp_data["date"])
     target_date_obj = pd.to_datetime(target_date)
 
     for i in range(7):
         current_date = target_date_obj - timedelta(days=i)
 
         # Check if the current date is in the DataFrame
-        filtered_data = state_hosp_data.loc[state_hosp_data["date"] == current_date, "previous_day_admission_influenza_confirmed"]
+        filtered_data = state_hosp_data.loc[
+            state_hosp_data["date"] == current_date,
+            "previous_day_admission_influenza_confirmed",
+        ]
 
         if filtered_data.empty:
             print(f"No data found for date: {current_date}")
@@ -222,7 +228,9 @@ def one_state_all_scores_to_csv(
         all_forecast_data = all_forecast_data[
             all_forecast_data["output_type"] == "quantile"
         ]
-        all_forecast_data["location"] = all_forecast_data["location"].apply(lambda x: str(x).zfill(2))
+        all_forecast_data["location"] = all_forecast_data["location"].apply(
+            lambda x: str(x).zfill(2)
+        )
 
         weekly_scores = one_state_one_week_WIS(
             all_forecast_data, state_code, full_hosp_data, location_to_state
@@ -231,9 +239,7 @@ def one_state_all_scores_to_csv(
             [state_df, pd.DataFrame([weekly_scores])], ignore_index=True
         )
 
-    state_csv_path = join(
-       OUTPUT_FOLDER, f"{location_to_state[state_code]}.csv"
-    )
+    state_csv_path = join(OUTPUT_FOLDER, f"{location_to_state[state_code]}.csv")
     state_df.to_csv(state_csv_path, index=False)
 
 
