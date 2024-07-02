@@ -25,7 +25,7 @@ def main() -> None:
 
     # Process reported hospitalization data.
     full_hosp_data = pd.read_csv(
-        "./COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_State_Timeseries__RAW_.csv"
+        "./datasets/COVID_Reported_Data.csv"
     )
     full_hosp_data = full_hosp_data[
         ["date", "state", "previous_day_admission_influenza_confirmed"]
