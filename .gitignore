@@ -3,3 +3,5 @@ calibration_weekly_WIS.py
 __pycache__
 .idea/
 pf_1000_data/
+
+weather_data/
