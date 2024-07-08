@@ -9,10 +9,6 @@ import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def plot_beta_estimate_and_trend():
-    pass
-
-
 def plot_state_comparison(
     mcmc_csv_path: str, pf_csv_path: str, save: bool = False
 ) -> None:
