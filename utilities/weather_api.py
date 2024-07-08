@@ -1,9 +1,12 @@
 from typing import Tuple
+
+import numpy as np
 import openmeteo_requests
 
 import requests_cache
 import pandas as pd
 from retry_requests import retry
+from datetime import datetime, timedelta
 
 
 def get_lat_long_from_loc_code(loc_code: str) -> Tuple[float, float]:
@@ -53,14 +56,39 @@ def get_single_day_mean_temp(lat: float, long: float, date: str) -> float:
     # Process daily data. The order of variables needs to be the same as requested.
     daily = response.Daily()
     daily_temperature_2m_mean = daily.Variables(0).ValuesAsNumpy()
+    return daily_temperature_2m_mean[0]
 
-    daily_data = {"date": pd.date_range(
-        start=pd.to_datetime(daily.Time(), unit="s", utc=True),
-        end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
-        freq=pd.Timedelta(seconds=daily.Interval()),
-        inclusive="left"
-    )}
-    daily_data["temperature_2m_mean"] = daily_temperature_2m_mean
 
-    daily_dataframe = pd.DataFrame(data=daily_data)
-    print(daily_dataframe)
+def get_weekly_forecast_avg_temp(lat: float, long: float, start_date: str) -> float:
+    # Setup the Open-Meteo API client with cache and retry on error
+    cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
+    retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
+    openmeteo = openmeteo_requests.Client(session=retry_session)
+
+    # Make sure all required weather variables are listed here
+    # The order of variables in hourly or daily is important to assign them correctly below
+    url = "https://historical-forecast-api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": 52.52,
+        "longitude": 13.41,
+        "start_date": start_date,
+        # end date is 1 week ahead
+        "end_date": (pd.to_datetime(start_date) + timedelta(
+            days=7)).strftime('%Y-%m-%d'),
+        "daily": "temperature_2m_max"
+    }
+    responses = openmeteo.weather_api(url, params=params)
+
+    # Process first location. Add a for-loop for multiple locations or weather models
+    response = responses[0]
+
+    # Process daily data. The order of variables needs to be the same as requested.
+    daily = response.Daily()
+    daily_temperature_2m_max = daily.Variables(0).ValuesAsNumpy()
+    return np.average(daily_temperature_2m_max)
+
+
+def get_avg_weekly_forecast_from_loc_code(loc_code: str, date: str) -> float:
+    lat, long = get_lat_long_from_loc_code(loc_code)
+    avg_weekly_temp = get_weekly_forecast_avg_temp(lat, long, date)
+    return avg_weekly_temp
