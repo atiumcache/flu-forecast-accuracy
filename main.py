@@ -24,9 +24,7 @@ def main() -> None:
     location_to_state = dict(zip(locations["location"], locations["abbreviation"]))
 
     # Process reported hospitalization data.
-    full_hosp_data = pd.read_csv(
-        "./datasets/COVID_Reported_Data.csv"
-    )
+    full_hosp_data = pd.read_csv("./datasets/COVID_Reported_Data.csv")
     full_hosp_data = full_hosp_data[
         ["date", "state", "previous_day_admission_influenza_confirmed"]
     ].sort_values(["state", "date"])

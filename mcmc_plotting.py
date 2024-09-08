@@ -9,6 +9,67 @@ import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
 
+def plot_state_comparison_avg(
+        mcmc_csv_path: str, pf_csv_path: str, save: bool = False
+) -> None:
+    """
+    Compares WIS scores from MCMC and Particle Filter methods over time for a state.
+
+    Args:
+        mcmc_csv_path: relative path to csv file containing MCMC WIS scores.
+        pf_csv_path: relative path to csv file containing Particle Filter WIS scores.
+        save: When `True`, saves the plot to `./plots/`.
+    """
+    mcmc_data = pd.read_csv(mcmc_csv_path)
+    pf_data = pd.read_csv(pf_csv_path)
+
+    mcmc_data["date"] = pd.to_datetime(mcmc_data["date"])
+    pf_data["date"] = pd.to_datetime(pf_data["date"])
+
+    # Dropping date from MCMC because PF doesn't have that data
+    index_to_drop = mcmc_data[mcmc_data['date'] == pd.to_datetime('2023-10-14')].index
+    mcmc_data = mcmc_data.drop(index_to_drop)
+
+    state_name = mcmc_data["state_abbrev"][1]
+
+    warm_palette = sns.color_palette("Oranges", 4)
+    cool_palette = sns.color_palette("Blues", 4)
+    tab_palette = sns.color_palette("tab10")
+
+    plt.figure(figsize=(6.5, 4.5), dpi=200)
+    
+    # Plot MCMC WIS scores
+    sns.lineplot(
+        x="date",
+        y="avg_wis",
+        data=mcmc_data,
+        linewidth=1.8,
+        label="MCMC Avg. WIS",
+        color=tab_palette[0],
+        linestyle="-",
+    )
+    sns.lineplot(
+        x="date",
+        y="avg_wis",
+        data=pf_data,
+        linewidth=1.8,
+        label="PF Avg. WIS",
+        color=tab_palette[1],
+        linestyle="-",
+    )
+    
+    plt.title(f"Avg. WIS Score Over Time :: MCMC vs PF Forecast :: {state_name}")
+    plt.xlabel("Date")
+    plt.ylabel("WIS")
+    plt.legend()
+    plt.grid(True)
+
+    if save:
+        plt.savefig(f"./plots/{state_name}_WIS_comparison.png")
+    else:
+        plt.show()
+
+
 def plot_state_comparison(
     mcmc_csv_path: str, pf_csv_path: str, save: bool = False
 ) -> None:

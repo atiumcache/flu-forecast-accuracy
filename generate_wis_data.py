@@ -221,9 +221,7 @@ def check_which_pred_method(args) -> str:
 def gather_all_hosp_data() -> pd.DataFrame:
 
     # Process reported hospitalization data.
-    full_hosp_data = pd.read_csv(
-        "./datasets/COVID_Reported_Data.csv"
-    )
+    full_hosp_data = pd.read_csv("./datasets/COVID_Reported_Data.csv")
     full_hosp_data = full_hosp_data[
         ["date", "state", "previous_day_admission_influenza_confirmed"]
     ].sort_values(["state", "date"])
