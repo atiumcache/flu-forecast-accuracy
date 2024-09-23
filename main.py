@@ -1,3 +1,8 @@
+"""
+This script features the main logic for calculating
+1, 2, 3, and 4-week WIS scores for 28 day time series predictions.
+"""
+
 import numpy as np
 import pandas as pd
 from os import listdir

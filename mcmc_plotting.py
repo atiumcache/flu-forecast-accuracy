@@ -2,11 +2,16 @@ from os import listdir
 from os.path import isfile, join
 from sys import path
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
+import \
+    matplotlib.pyplot as plt
+import \
+    numpy as np
+import \
+    pandas as pd
+import \
+    seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
+import os
 
 
 def plot_state_comparison_avg(
@@ -23,21 +28,35 @@ def plot_state_comparison_avg(
     mcmc_data = pd.read_csv(mcmc_csv_path)
     pf_data = pd.read_csv(pf_csv_path)
 
-    mcmc_data["date"] = pd.to_datetime(mcmc_data["date"])
-    pf_data["date"] = pd.to_datetime(pf_data["date"])
+    mcmc_data[
+        "date"] = pd.to_datetime(
+        mcmc_data[
+            "date"])
+    pf_data[
+        "date"] = pd.to_datetime(
+        pf_data[
+            "date"])
 
     # Dropping date from MCMC because PF doesn't have that data
-    index_to_drop = mcmc_data[mcmc_data['date'] == pd.to_datetime('2023-10-14')].index
+    index_to_drop = \
+    mcmc_data[
+        mcmc_data[
+            'date'] == pd.to_datetime('2023-10-14')].index
     mcmc_data = mcmc_data.drop(index_to_drop)
 
-    state_name = mcmc_data["state_abbrev"][1]
+    state_name = \
+    mcmc_data[
+        "state_abbrev"][
+        1]
 
     warm_palette = sns.color_palette("Oranges", 4)
     cool_palette = sns.color_palette("Blues", 4)
     tab_palette = sns.color_palette("tab10")
 
-    plt.figure(figsize=(6.5, 4.5), dpi=200)
-    
+    plt.figure(figsize=(
+    6.5,
+    4.5), dpi=200)
+
     # Plot MCMC WIS scores
     sns.lineplot(
         x="date",
@@ -45,7 +64,9 @@ def plot_state_comparison_avg(
         data=mcmc_data,
         linewidth=1.8,
         label="MCMC Avg. WIS",
-        color=tab_palette[0],
+        color=
+        tab_palette[
+            0],
         linestyle="-",
     )
     sns.lineplot(
@@ -54,10 +75,12 @@ def plot_state_comparison_avg(
         data=pf_data,
         linewidth=1.8,
         label="PF Avg. WIS",
-        color=tab_palette[1],
+        color=
+        tab_palette[
+            1],
         linestyle="-",
     )
-    
+
     plt.title(f"Avg. WIS Score Over Time :: MCMC vs PF Forecast :: {state_name}")
     plt.xlabel("Date")
     plt.ylabel("WIS")
@@ -71,7 +94,7 @@ def plot_state_comparison_avg(
 
 
 def plot_state_comparison(
-    mcmc_csv_path: str, pf_csv_path: str, save: bool = False
+        mcmc_csv_path: str, pf_csv_path: str, save: bool = False
 ) -> None:
     """
     Compares WIS scores from MCMC and Particle Filter methods over time for a state.
@@ -84,15 +107,26 @@ def plot_state_comparison(
     mcmc_data = pd.read_csv(mcmc_csv_path)
     pf_data = pd.read_csv(pf_csv_path)
 
-    mcmc_data["date"] = pd.to_datetime(mcmc_data["date"])
-    pf_data["date"] = pd.to_datetime(pf_data["date"])
+    mcmc_data[
+        "date"] = pd.to_datetime(
+        mcmc_data[
+            "date"])
+    pf_data[
+        "date"] = pd.to_datetime(
+        pf_data[
+            "date"])
 
-    state_name = mcmc_data["state_abbrev"][1]
+    state_name = \
+    mcmc_data[
+        "state_abbrev"][
+        1]
 
     warm_palette = sns.color_palette("Oranges", 4)
     cool_palette = sns.color_palette("Blues", 4)
 
-    plt.figure(figsize=(8.5, 4.5), dpi=200)
+    plt.figure(figsize=(
+    8.5,
+    4.5), dpi=200)
 
     # Plot MCMC WIS scores
     sns.lineplot(
@@ -101,7 +135,9 @@ def plot_state_comparison(
         data=mcmc_data,
         linewidth=1.5,
         label="MCMC 1-Week WIS",
-        color=warm_palette[0],
+        color=
+        warm_palette[
+            0],
         linestyle="-",
     )
     sns.lineplot(
@@ -110,7 +146,9 @@ def plot_state_comparison(
         data=mcmc_data,
         linewidth=1.5,
         label="MCMC 2-Week WIS",
-        color=warm_palette[1],
+        color=
+        warm_palette[
+            1],
         linestyle="--",
     )
     sns.lineplot(
@@ -119,7 +157,9 @@ def plot_state_comparison(
         data=mcmc_data,
         linewidth=1.5,
         label="MCMC 3-Week WIS",
-        color=warm_palette[2],
+        color=
+        warm_palette[
+            2],
         linestyle="-.",
     )
     sns.lineplot(
@@ -128,7 +168,9 @@ def plot_state_comparison(
         data=mcmc_data,
         linewidth=1.5,
         label="MCMC 4-Week WIS",
-        color=warm_palette[3],
+        color=
+        warm_palette[
+            3],
         linestyle=":",
     )
 
@@ -139,7 +181,9 @@ def plot_state_comparison(
         data=pf_data,
         linewidth=1.5,
         label="PF 1-Week WIS",
-        color=cool_palette[0],
+        color=
+        cool_palette[
+            0],
         linestyle="-",
     )
     sns.lineplot(
@@ -148,7 +192,9 @@ def plot_state_comparison(
         data=pf_data,
         linewidth=1.5,
         label="PF 2-Week WIS",
-        color=cool_palette[1],
+        color=
+        cool_palette[
+            1],
         linestyle="--",
     )
     sns.lineplot(
@@ -157,7 +203,9 @@ def plot_state_comparison(
         data=pf_data,
         linewidth=1.5,
         label="PF 3-Week WIS",
-        color=cool_palette[2],
+        color=
+        cool_palette[
+            2],
         linestyle="-.",
     )
     sns.lineplot(
@@ -166,7 +214,9 @@ def plot_state_comparison(
         data=pf_data,
         linewidth=1.5,
         label="PF 4-Week WIS",
-        color=cool_palette[3],
+        color=
+        cool_palette[
+            3],
         linestyle=":",
     )
 
@@ -192,19 +242,29 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
     """
     data = pd.read_csv(state_csv)
 
-    data["date"] = pd.to_datetime(data["date"])
-    state_name = data["state_abbrev"][1]
+    data[
+        "date"] = pd.to_datetime(
+        data[
+            "date"])
+    state_name = \
+    data[
+        "state_abbrev"][
+        1]
 
     palette = sns.color_palette("colorblind")
 
-    plt.figure(figsize=(10, 4), dpi=600)
+    plt.figure(figsize=(
+    10,
+    4), dpi=600)
     sns.lineplot(
         x="date",
         y="1wk_WIS",
         data=data,
         linewidth=1.5,
         label="1-Week WIS",
-        color=palette[0],
+        color=
+        palette[
+            0],
         linestyle="-",
     )
     sns.lineplot(
@@ -213,7 +273,9 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         data=data,
         linewidth=1.5,
         label="2-Week WIS",
-        color=palette[1],
+        color=
+        palette[
+            1],
         linestyle="--",
     )
     sns.lineplot(
@@ -222,7 +284,9 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         data=data,
         linewidth=1.5,
         label="3-Week WIS",
-        color=palette[2],
+        color=
+        palette[
+            2],
         linestyle="-.",
     )
     sns.lineplot(
@@ -231,7 +295,9 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         data=data,
         linewidth=1.5,
         label="4-Week WIS",
-        color=palette[4],
+        color=
+        palette[
+            4],
         linestyle=":",
     )
 
@@ -243,7 +309,10 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
     plt.show()
 
     if save == True:
-        filepath = "./plots/" + data["state_abbrev"][1] + "_WIS_scores_plot.csv"
+        filepath = "./plots/" + \
+                   data[
+                       "state_abbrev"][
+                       1] + "_WIS_scores_plot.csv"
         plt.savefig(filepath)
 
 
@@ -255,7 +324,11 @@ def plot_average_of_all_states(data_folder_path: str):
         data_folder_path: relative path to folder containing all accuracy results.
     """
     data_list = []
-    wis_columns = ["1wk_WIS", "2wk_WIS", "3wk_WIS", "4wk_WIS"]
+    wis_columns = [
+        "1wk_WIS",
+        "2wk_WIS",
+        "3wk_WIS",
+        "4wk_WIS"]
 
     # Read each CSV file in the directory
     for filename in listdir(data_folder_path):
@@ -265,32 +338,46 @@ def plot_average_of_all_states(data_folder_path: str):
             data = pd.read_csv(file_path)
 
             # Convert 'date' column to datetime format
-            data["date"] = pd.to_datetime(data["date"])
+            data[
+                "date"] = pd.to_datetime(
+                data[
+                    "date"])
 
             for col in wis_columns:
-                data[col] = pd.to_numeric(data[col], errors="coerce")
+                data[
+                    col] = pd.to_numeric(
+                    data[
+                        col], errors="coerce")
 
             # Check if any row has all zeros in WIS columns
             # If so, don't append/use it, because that indicates missing data.
-            if not (data[wis_columns] == 0).all(axis=1).any():
+            if not (
+                    data[
+                        wis_columns] == 0).all(axis=1).any():
                 data_list.append(data)
 
     # Concatenate all dataframes
     combined_data = pd.concat(data_list)
 
     # Group by date and calculate the mean for each WIS
-    average_data = combined_data.groupby("date")[wis_columns].mean().reset_index()
+    average_data = \
+    combined_data.groupby("date")[
+        wis_columns].mean().reset_index()
 
     # Plot
     palette = sns.color_palette("colorblind")
 
-    plt.figure(figsize=(10, 4), dpi=600)
+    plt.figure(figsize=(
+    10,
+    4), dpi=600)
     sns.lineplot(
         x="date",
         y="1wk_WIS",
         data=average_data,
         label="Average 1-Week WIS",
-        color=palette[0],
+        color=
+        palette[
+            0],
         linestyle="-",
         linewidth=1.5,
     )
@@ -299,7 +386,9 @@ def plot_average_of_all_states(data_folder_path: str):
         y="2wk_WIS",
         data=average_data,
         label="Average 2-Week WIS",
-        color=palette[1],
+        color=
+        palette[
+            1],
         linestyle="--",
         linewidth=1.5,
     )
@@ -308,7 +397,9 @@ def plot_average_of_all_states(data_folder_path: str):
         y="3wk_WIS",
         data=average_data,
         label="Average 3-Week WIS",
-        color=palette[2],
+        color=
+        palette[
+            2],
         linestyle="-.",
         linewidth=1.5,
     )
@@ -317,7 +408,9 @@ def plot_average_of_all_states(data_folder_path: str):
         y="4wk_WIS",
         data=average_data,
         label="Average 4-Week WIS",
-        color=palette[4],
+        color=
+        palette[
+            4],
         linestyle=":",
         linewidth=1.5,
     )
@@ -328,3 +421,39 @@ def plot_average_of_all_states(data_folder_path: str):
     plt.legend(title="Forecast Horizon")
     plt.grid(True)
     plt.show()
+
+
+def calculate_improvement_scores():
+    pf_folder_path = "./pf_accuracy_results/"
+    mcmc_folder_path = "./mcmc_accuracy_results/"
+    all_improvements_df = pd.DataFrame()
+    columns_to_compare = ['1wk_WIS', '2wk_WIS', '3wk_WIS', '4wk_WIS']
+
+    for filename in os.listdir(mcmc_folder_path):
+        mcmc_df = pd.read_csv(mcmc_folder_path + filename)
+        pf_df = pd.read_csv(pf_folder_path + filename)
+
+        location_abbrev = mcmc_df['state_abbrev'][1]
+        location_code = mcmc_df['state_code'][1]
+
+        # make sure we have the same dates for each method
+        for date in mcmc_df['date']:
+            if date not in pf_df['date']:
+                index_to_drop = mcmc_df[mcmc_df['date'] == date].index
+                mcmc_df = mcmc_df.drop(index_to_drop)
+        for date in pf_df['date']:
+            if date not in mcmc_df['date']:
+                index_to_drop = pf_df[pf_df['date'] == date].index
+                pf_df = pf_df.drop(index_to_drop)
+
+        improvement_df = pd.DataFrame()
+        improvement_df[['state_code', 'state_abbrev']] = pf_df[['state_code', 'state_abbrev']]
+        
+        # Calculate improvement: (pf_wis - mcmc_wis) / mcmc_wis
+        for col in columns_to_compare:
+            improvement_df[col + '_improvement'] = (pf_df[col] - mcmc_df[col]) / mcmc_df[col]
+
+        all_improvements_df = pd.concat([all_improvements_df, improvement_df], ignore_index=True)
+
+    return all_improvements_df
+
