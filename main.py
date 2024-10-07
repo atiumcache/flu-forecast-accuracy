@@ -10,8 +10,8 @@ from os.path import isfile, join
 from datetime import date, timedelta
 
 
-INPUT_FOLDER = "./formatted-pf-predictions/"
-OUTPUT_FOLDER = "./pf_accuracy_results/"
+INPUT_FOLDER = "./pmcmc_wis/test_predictions_20241006/"
+OUTPUT_FOLDER = "./pmcmc_wis/accuracy_results_20241006/"
 
 # INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
 # OUTPUT_FOLDER = "./mcmc_accuracy_results/"
@@ -37,6 +37,8 @@ def main() -> None:
 
     # Run forecast accuracy on all locations.
     for state_code in location_to_state.keys():
+        if state_code != "04":
+            continue
         print("Running forecast accuracy on location code", state_code)
         one_state_all_scores_to_csv(
             state_code, INPUT_FOLDER, full_hosp_data, location_to_state

@@ -43,7 +43,7 @@ def get_daily_data_point(
         "rel_humidity": "relative_humidity_2m",
         "radiation": "shortwave_radiation_sum",
         "sunshine": "sunshine_duration",
-        "wind_speed": "wind_speed_10m_max"
+        "wind_speed": "wind_speed_10m_max",
     }
 
     # hourly_weather are variables that return hourly data
@@ -131,9 +131,10 @@ def get_avg_weekly_forecast_from_loc_code(loc_code: str, date: str) -> float:
     avg_weekly_temp = get_weekly_forecast_avg_temp(lat, long, date)
     return avg_weekly_temp
 
+
 def openmeteo_data(lat, long):
     # Setup the Open-Meteo API client with cache and retry on error
-    cache_session = requests_cache.CachedSession('.cache', expire_after=-1)
+    cache_session = requests_cache.CachedSession(".cache", expire_after=-1)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     openmeteo = openmeteo_requests.Client(session=retry_session)
 
@@ -149,14 +150,13 @@ def openmeteo_data(lat, long):
             "temperature_2m_mean",
             "sunshine_duration",
             "wind_speed_10m_max",
-            "shortwave_radiation_sum"]
+            "shortwave_radiation_sum",
+        ],
     }
     responses = openmeteo.weather_api(url, params=params)
 
     # Process first location. Add a for-loop for multiple locations or weather models
-    response = \
-    responses[
-        0]
+    response = responses[0]
     print(f"Coordinates {response.Latitude()}°N {response.Longitude()}°E")
     print(f"Elevation {response.Elevation()} m asl")
     print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
@@ -169,20 +169,18 @@ def openmeteo_data(lat, long):
     daily_wind_speed_10m_max = daily.Variables(2).ValuesAsNumpy()
     daily_shortwave_radiation_sum = daily.Variables(3).ValuesAsNumpy()
 
-    daily_data = {"date": pd.date_range(
-        start=pd.to_datetime(daily.Time(), unit="s", utc=True),
-        end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
-        freq=pd.Timedelta(seconds=daily.Interval()),
-        inclusive="left"
-    )}
-    daily_data[
-        "temperature_2m_mean"] = daily_temperature_2m_mean
-    daily_data[
-        "sunshine_duration"] = daily_sunshine_duration
-    daily_data[
-        "wind_speed_10m_max"] = daily_wind_speed_10m_max
-    daily_data[
-        "shortwave_radiation_sum"] = daily_shortwave_radiation_sum
+    daily_data = {
+        "date": pd.date_range(
+            start=pd.to_datetime(daily.Time(), unit="s", utc=True),
+            end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
+            freq=pd.Timedelta(seconds=daily.Interval()),
+            inclusive="left",
+        )
+    }
+    daily_data["temperature_2m_mean"] = daily_temperature_2m_mean
+    daily_data["sunshine_duration"] = daily_sunshine_duration
+    daily_data["wind_speed_10m_max"] = daily_wind_speed_10m_max
+    daily_data["shortwave_radiation_sum"] = daily_shortwave_radiation_sum
 
     daily_dataframe = pd.DataFrame(data=daily_data)
     return daily_dataframe
