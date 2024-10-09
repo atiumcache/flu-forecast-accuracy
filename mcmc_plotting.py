@@ -189,12 +189,13 @@ def plot_state_comparison(
     plt.show()
 
 
-def plot_one_state(state_csv: str, save: bool = False) -> None:
+def plot_one_state(state_csv: str, method: str, save: bool = False) -> None:
     """
     Displays a plot of one state's WIS scores over time.
 
     Args:
         state_csv: relative path to csv file containing WIS scores.
+        method: a string for the method (e.g. MCMC, PF), used in the plot title.
         save: When `True`, saves the plot to `./plots/`.
     """
     data = pd.read_csv(state_csv)
@@ -242,7 +243,7 @@ def plot_one_state(state_csv: str, save: bool = False) -> None:
         linestyle=":",
     )
 
-    plt.title("WIS Scores Over Time :: MCMC Forecast :: " + state_name)
+    plt.title(f"WIS Scores Over Time :: {method} Forecast :: " + state_name)
     plt.xlabel("Date")
     plt.ylabel("WIS")
     plt.legend(title="Forecast Horizon")
