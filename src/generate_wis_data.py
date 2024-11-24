@@ -1,4 +1,11 @@
 """
+This script creates additional features for WIS score analysis,
+including rate of change, moving average, lag, etc.
+
+The features would then be used to try and predict when our
+forecasting pipeline would make bad predictions.
+Yes, that's right: we want to make predictions about our predictions.
+
 Example command line usage:
     python3 generate_wis_data.py -l '01' --mcmc
 

@@ -1,3 +1,7 @@
+"""
+This module contains functions for plotting WIS
+scores over time.
+"""
 from os import listdir
 from os.path import isfile, join
 from sys import path
@@ -11,22 +15,24 @@ import os
 
 
 def plot_state_comparison_avg(
-    mcmc_csv_path: str,
-    pf_csv_path: str,
-    method_1: str,
-    method_2: str,
+    method_1_path: str,
+    method_2_path: str,
+    method_1_name: str,
+    method_2_name: str,
     save: bool = False,
 ) -> None:
     """
     Compares WIS scores from MCMC and Particle Filter methods over time for a state.
 
     Args:
-        mcmc_csv_path: relative path to csv file containing MCMC WIS scores.
-        pf_csv_path: relative path to csv file containing Particle Filter WIS scores.
+        method_1_path: relative path to csv file containing MCMC WIS scores.
+        method_2_path: relative path to csv file containing Particle Filter WIS scores.
+        method_1_name: the first method name to use in the plot title.
+        method_2_name: the second method name to use in the plot title.
         save: When `True`, saves the plot to `./plots/`.
     """
-    mcmc_data = pd.read_csv(mcmc_csv_path)
-    pf_data = pd.read_csv(pf_csv_path)
+    mcmc_data = pd.read_csv(method_1_path)
+    pf_data = pd.read_csv(method_2_path)
 
     mcmc_data["date"] = pd.to_datetime(mcmc_data["date"])
     pf_data["date"] = pd.to_datetime(pf_data["date"])
@@ -49,7 +55,7 @@ def plot_state_comparison_avg(
         y="avg_wis",
         data=mcmc_data,
         linewidth=1.8,
-        label=f"{method_1} Avg. WIS",
+        label=f"{method_1_name} Avg. WIS",
         color=tab_palette[0],
         linestyle="-",
     )
@@ -58,13 +64,13 @@ def plot_state_comparison_avg(
         y="avg_wis",
         data=pf_data,
         linewidth=1.8,
-        label=f"{method_2} Avg. WIS",
+        label=f"{method_2_name} Avg. WIS",
         color=tab_palette[1],
         linestyle="-",
     )
 
     plt.title(
-        f"Avg. WIS Score Over Time :: {method_1} vs {method_2} Forecast :: {state_name}"
+        f"Avg. WIS Score Over Time :: {method_1_name} vs {method_2_name} Forecast :: {state_name}"
     )
     plt.xlabel("Date")
     plt.ylabel("WIS")

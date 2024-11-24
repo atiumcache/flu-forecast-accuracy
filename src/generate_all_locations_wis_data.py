@@ -1,3 +1,7 @@
+"""
+See generate_wis_data.py. This script just runs generate_wis_data
+in parallel on the data for multiple locations.
+"""
 import subprocess
 from typing import Dict
 import pandas as pd
