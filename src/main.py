@@ -8,11 +8,12 @@ import pandas as pd
 from os import listdir
 from os.path import isfile, join
 from datetime import date, timedelta
+import os
 
 
-INPUT_FOLDER = "./pmcmc_wis/test_predictions_20241006/"
-OUTPUT_FOLDER = "./pmcmc_wis/accuracy_results_20241006/"
-
+INPUT_FOLDER = "../prediction_data/pmcmc_wis/test_predictions_20241006/"
+OUTPUT_FOLDER = "../prediction_data/pmcmc_wis/accuracy_results_test_20241124/"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # INPUT_FOLDER = "./LosAlamos_NAU-CModel_Flu/"
 # OUTPUT_FOLDER = "./mcmc_accuracy_results/"
 
